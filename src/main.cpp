@@ -8,8 +8,15 @@
 #include <limits>
 #include <chrono>
 #include <thread>
-
 using namespace std;
+const string RESET = "\033[0m";
+const string RED = "\033[31m";
+const string GREEN = "\033[32m";
+const string YELLOW = "\033[33m";
+const string BLUE = "\033[34m";
+const string MAGENTA = "\033[35m";
+const string CYAN = "\033[36m";
+const string WHITE = "\033[37m";
 string block_choice;
 int score = 0;
 //works
@@ -34,38 +41,38 @@ void custom_print(string variable) {
     cout << "-" << variable << '\n';
 }
 void show_map(int Gridlayer[12][12]) {
-
-    for (int row = 0; row < 12; row++) {
-        for (int column = 0; column < 12; column++) {
-            if (Gridlayer[row][column] != 2) { 
-                cout << Gridlayer[row][column] << ' ';
+    for (int row = 1; row < 11; row++) {
+        for (int column = 1; column < 11; column++) {
+            if (Gridlayer[row][column] == 1) {
+                cout << "1 "; // Show filled blocks as '1'
+            } else {
+                cout << ". "; // Replace zero with '.'
             }
         }
         cout << '\n';
     }
-    
-
 }
+
 void show_preview(int block_preview[4][4], blocks& I_block, blocks& O_block, blocks& S_block, blocks& Z_block, blocks& L_block, blocks& J_block, blocks& T_block) {
     
-    
+    clearConsole();
     // Generate the future block
     block_choice = random_block_generator(I_block, O_block, S_block, Z_block, L_block, J_block, T_block);
     
     // Clear the block_preview
     for (int row = 0; row < 3; row++) {
         for (int column = 0; column < 3; column++) {
-            block_preview[row][column] = 0; // Resetting to 0
+            block_preview[row][column] = 0; 
         }
     }
 
-    // Set the block_preview based on future_block
+    
     if (block_choice == "I") {
         block_preview[0][1] = 1;
         block_preview[1][1] = 1;
         block_preview[2][1] = 1;
-        block_preview[1][0] = 1; // Adjusting to fit in 3x3
-        block_preview[1][2] = 1; // Adjusting to fit in 3x3
+        block_preview[1][0] = 1; 
+        block_preview[1][2] = 1; 
     }
     else if (block_choice == "O") {
         block_preview[1][1] = 1;
@@ -440,7 +447,7 @@ int main() {
         show_map(Gridlayer);
         
         while (true) {
-            
+           
             if (temp_layer.empty() || !isBlockOnGround(temp_layer,Gridlayer)) {
                 custom_print("where do you want to move");
                 string user_input;
@@ -463,7 +470,7 @@ int main() {
             }
           
         }
-    this_thread::sleep_for(std::chrono::milliseconds(500)); 
+    
     }
 
    
