@@ -8,15 +8,8 @@
 #include <limits>
 #include <chrono>
 #include <thread>
+#include <conio.h> 
 using namespace std;
-const string RESET = "\033[0m";
-const string RED = "\033[31m";
-const string GREEN = "\033[32m";
-const string YELLOW = "\033[33m";
-const string BLUE = "\033[34m";
-const string MAGENTA = "\033[35m";
-const string CYAN = "\033[36m";
-const string WHITE = "\033[37m";
 string block_choice;
 int score = 0;
 //works
@@ -25,14 +18,6 @@ public:
     vector<pair<int, int>> block_layer;
     string name;
 };
-void initialize_random() {
-    srand(static_cast<unsigned int>(time(0)));
-}
-
-string random_block_generator(blocks& I_block, blocks& O_block, blocks& S_block, blocks& Z_block, blocks& L_block, blocks& J_block, blocks& T_block) {
-    vector<string> block_names = {I_block.name, O_block.name, S_block.name, Z_block.name, L_block.name, J_block.name, T_block.name};
-    return block_names[rand() % block_names.size()]; // Randomly select a block
-}
 
 void clearConsole() {
     cout << "\033[2J\033[1;1H"; 
@@ -57,7 +42,9 @@ void show_preview(int block_preview[4][4], blocks& I_block, blocks& O_block, blo
     
     clearConsole();
     // Generate the future block
-    block_choice = random_block_generator(I_block, O_block, S_block, Z_block, L_block, J_block, T_block);
+    vector<string> random_block_generator = {"I", "S", "Z", "T", "O", "L", "J"};
+    srand(static_cast<unsigned int>(time(0)));
+    block_choice = random_block_generator[rand() % 7]; 
     
     // Clear the block_preview
     for (int row = 0; row < 3; row++) {
@@ -128,8 +115,9 @@ void show_preview(int block_preview[4][4], blocks& I_block, blocks& O_block, blo
 
 
 void make_block_appear(int Gridlayer[12][12], blocks& I_block, blocks& O_block, blocks& S_block, blocks& Z_block, blocks& L_block, blocks& J_block, blocks& T_block, vector<pair<int, int>>& temp_layer) {
-    // Generate the current block
-    string block_choice = random_block_generator(I_block, O_block, S_block, Z_block, L_block, J_block, T_block);
+    vector<string> random_block_generator = {"I", "S", "Z", "T", "O", "L", "J"};
+    srand(static_cast<unsigned int>(time(0)));
+    block_choice = random_block_generator[rand() % 7]; 
     temp_layer.clear();
 
     // Place the block based on present_block
@@ -372,7 +360,17 @@ bool isBlockOnGround(vector<pair<int, int>>& temp_layer, int Gridlayer[12][12]) 
     return false; 
 }
 void displayScore() {
+   
+    if (score < 100) {
+        cout << "LEVEL 1" << "\n";   
+        
+    }
+    else if (score>=100 && score<=500 ) {
+        cout << "LEVEL 2" << "\n";  
+
+    }
     cout << "Your current score is: " << score << "\n";
+
 }
 
 bool is_row_full(int Gridlayer[12][12], int& full_row) {
