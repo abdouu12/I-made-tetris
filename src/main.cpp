@@ -13,15 +13,6 @@
 
 using namespace std;
 string block_choice,temp_rand;
-const string COLOR_I = "\033[36m"; // Cyan
-const string COLOR_O = "\033[33m"; // Yellow
-const string COLOR_T = "\033[35m"; // Magenta
-const string COLOR_L = "\033[32m"; // Green
-const string COLOR_J = "\033[34m"; // Blue
-const string COLOR_S = "\033[91m"; // Red
-const string COLOR_Z = "\033[92m"; // Light Green
-const string RESET = "\033[0m";    // Reset to default color
-
 int score = 0;
 //works
 class blocks {
@@ -216,38 +207,13 @@ void rotation(int Gridlayer[12][12], vector<pair<int, int>>& temp_layer) {
     }
 }
 
-string check_for_neighbor_cells(vector<pair<int, int>>& temp_layer, int Gridlayer[12][12]) {
-    for (auto& pos : temp_layer) {
-        int x = pos.first;
-        int y = pos.second;
+#include <vector>
+#include <set>
+#include <utility> // For std::pair
 
-        // Check right neighbor
-        if (y < 11 && Gridlayer[x][y-1] == 1) {
-            
-            return "right_bound"; 
-        }
-        // Check left neighbor
-        if (y > 0 && Gridlayer[x][y+1] == 1) {
-            
-            return "left_bound";
-        }
-    }
-    return " "; // No collisions
-}
-void offset_back(vector<pair<int, int>>& temp_layer, int Gridlayer[12][12]){
-    string boundary = check_for_neighbor_cells(temp_layer, Gridlayer);
-    
-    for (auto& pos : temp_layer) {
-        if (boundary == "right_bound") {
-            Gridlayer[pos.first][pos.second + 1] = 1;
-            pos.second -= 1; 
-        } 
-        else if (boundary == "left_bound") { 
-            Gridlayer[pos.first][pos.second - 1] = 1;
-            pos.second += 1;
-        }
-    }
-}
+using namespace std;
+
+
 
 void displayScore() {
    
@@ -255,7 +221,11 @@ void displayScore() {
         cout << "LEVEL 1" << "\n";   
         
     }
-    else if (score>=500 && score<=1000 ) {
+    else if (score>=500 && score<1000 ) {
+        cout << "LEVEL 2" << "\n";  
+
+    }
+    else if (score>=1000 && score<1500 ) {
         cout << "LEVEL 2" << "\n";  
 
     }
@@ -298,7 +268,7 @@ void movement(string user_input, int Gridlayer[12][12],
         for (auto& off_set : temp_layer) {
             off_set.second += 1; 
             OutOfBoundaries(Gridlayer, temp_layer);
-            offset_back(temp_layer,Gridlayer);
+            
         }
     }
     // Move left
@@ -306,14 +276,14 @@ void movement(string user_input, int Gridlayer[12][12],
         for (auto& off_set : temp_layer) {
             off_set.second -= 1; 
             OutOfBoundaries(Gridlayer, temp_layer);
-            offset_back(temp_layer,Gridlayer);
+            
         }
     }
     // Rotation
     else if (user_input == "r") {
         rotation(Gridlayer, temp_layer); 
         OutOfBoundaries(Gridlayer, temp_layer);
-        offset_back(temp_layer,Gridlayer);
+        
     }
 
     // Check for collisions with the updated positions in temp_layer
