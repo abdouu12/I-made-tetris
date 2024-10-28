@@ -9,8 +9,19 @@
 #include <chrono>
 #include <thread>
 #include <conio.h> 
+#include <cstdlib>
+
 using namespace std;
-string block_choice;
+string block_choice,temp_rand;
+const string COLOR_I = "\033[36m"; // Cyan
+const string COLOR_O = "\033[33m"; // Yellow
+const string COLOR_T = "\033[35m"; // Magenta
+const string COLOR_L = "\033[32m"; // Green
+const string COLOR_J = "\033[34m"; // Blue
+const string COLOR_S = "\033[91m"; // Red
+const string COLOR_Z = "\033[92m"; // Light Green
+const string RESET = "\033[0m";    // Reset to default color
+
 int score = 0;
 //works
 class blocks {
@@ -18,7 +29,10 @@ public:
     vector<pair<int, int>> block_layer;
     string name;
 };
-
+void gameover() {
+    cout << "Game Over! Your score is: " << score << endl;
+    exit(0); // Exit the program
+}
 void clearConsole() {
     cout << "\033[2J\033[1;1H"; 
 }
@@ -29,7 +43,7 @@ void show_map(int Gridlayer[12][12]) {
     for (int row = 1; row < 11; row++) {
         for (int column = 1; column < 11; column++) {
             if (Gridlayer[row][column] == 1) {
-                cout << "1 "; // Show filled blocks as '1'
+                cout << "O "; 
             } else {
                 cout << ". "; // Replace zero with '.'
             }
@@ -38,86 +52,18 @@ void show_map(int Gridlayer[12][12]) {
     }
 }
 
-void show_preview(int block_preview[4][4], blocks& I_block, blocks& O_block, blocks& S_block, blocks& Z_block, blocks& L_block, blocks& J_block, blocks& T_block) {
-    
-    clearConsole();
-    // Generate the future block
-    vector<string> random_block_generator = {"I", "S", "Z", "T", "O", "L", "J"};
-    srand(static_cast<unsigned int>(time(0)));
-    block_choice = random_block_generator[rand() % 7]; 
-    
-    // Clear the block_preview
-    for (int row = 0; row < 3; row++) {
-        for (int column = 0; column < 3; column++) {
-            block_preview[row][column] = 0; 
-        }
-    }
-
-    
-    if (block_choice == "I") {
-        block_preview[0][1] = 1;
-        block_preview[1][1] = 1;
-        block_preview[2][1] = 1;
-        block_preview[1][0] = 1; 
-        block_preview[1][2] = 1; 
-    }
-    else if (block_choice == "O") {
-        block_preview[1][1] = 1;
-        block_preview[1][2] = 1;
-        block_preview[2][1] = 1;
-        block_preview[2][2] = 1;
-    }
-    else if (block_choice == "L") {
-        block_preview[1][1] = 1;
-        block_preview[2][1] = 1;
-        block_preview[2][2] = 1;
-        block_preview[1][2] = 1; // Adjusting to fit in 3x3
-    }
-    else if (block_choice == "J") {
-        block_preview[1][2] = 1;
-        block_preview[2][2] = 1;
-        block_preview[2][1] = 1;
-        block_preview[1][1] = 1; // Adjusting to fit in 3x3
-    }
-    else if (block_choice == "S") {
-        block_preview[1][1] = 1;
-        block_preview[1][2] = 1;
-        block_preview[2][1] = 1;
-        block_preview[2][2] = 1; // Adjusting to fit in 3x3
-    }
-    else if (block_choice == "Z") {
-        block_preview[1][1] = 1;
-        block_preview[1][2] = 1;
-        block_preview[2][1] = 1;
-        block_preview[2][2] = 1; // Adjusting to fit in 3x3
-    }
-    else if (block_choice == "T") {
-        block_preview[1][1] = 1;
-        block_preview[1][2] = 1;
-        block_preview[1][0] = 1; // Adjusting to fit in 3x3
-        block_preview[2][1] = 1; // Adjusting to fit in 3x3
-    }
-
-    // Display the block preview
-    cout << "Next Block Preview:\n";
-    for (int row = 0; row < 3; row++) {
-        for (int column = 0; column < 3; column++) {
-            if (block_preview[row][column] != 0) {
-                cout << block_preview[row][column] << ' ';
-            } else {
-                cout << ". "; 
-            }
-        }
-        cout << '\n';
-    }
-}
-
-
 
 void make_block_appear(int Gridlayer[12][12], blocks& I_block, blocks& O_block, blocks& S_block, blocks& Z_block, blocks& L_block, blocks& J_block, blocks& T_block, vector<pair<int, int>>& temp_layer) {
     vector<string> random_block_generator = {"I", "S", "Z", "T", "O", "L", "J"};
     srand(static_cast<unsigned int>(time(0)));
-    block_choice = random_block_generator[rand() % 7]; 
+    if (temp_rand.empty()) {
+        block_choice = random_block_generator[rand() % 7];
+    }
+    else{
+        block_choice = temp_rand;
+    }
+    
+    
     temp_layer.clear();
 
     // Place the block based on present_block
@@ -270,9 +216,52 @@ void rotation(int Gridlayer[12][12], vector<pair<int, int>>& temp_layer) {
     }
 }
 
+string check_for_neighbor_cells(vector<pair<int, int>>& temp_layer, int Gridlayer[12][12]) {
+    for (auto& pos : temp_layer) {
+        int x = pos.first;
+        int y = pos.second;
 
+        // Check right neighbor
+        if (y < 11 && Gridlayer[x][y-1] == 1) {
+            
+            return "right_bound"; 
+        }
+        // Check left neighbor
+        if (y > 0 && Gridlayer[x][y+1] == 1) {
+            
+            return "left_bound";
+        }
+    }
+    return " "; // No collisions
+}
+void offset_back(vector<pair<int, int>>& temp_layer, int Gridlayer[12][12]){
+    string boundary = check_for_neighbor_cells(temp_layer, Gridlayer);
+    
+    for (auto& pos : temp_layer) {
+        if (boundary == "right_bound") {
+            Gridlayer[pos.first][pos.second + 1] = 1;
+            pos.second -= 1; 
+        } 
+        else if (boundary == "left_bound") { 
+            Gridlayer[pos.first][pos.second - 1] = 1;
+            pos.second += 1;
+        }
+    }
+}
 
+void displayScore() {
+   
+    if (score < 500) {
+        cout << "LEVEL 1" << "\n";   
+        
+    }
+    else if (score>=500 && score<=1000 ) {
+        cout << "LEVEL 2" << "\n";  
 
+    }
+    cout << "Your current score is: " << score << "\n";
+
+}
 
 bool collision(int Gridlayer[12][12], vector<pair<int, int>>& temp_layer) {
     vector<pair<int, int>> boundary_positions = boundary(temp_layer, Gridlayer);
@@ -301,6 +290,7 @@ void movement(string user_input, int Gridlayer[12][12],
         for (auto& off_set : temp_layer) {
             off_set.first += 1; 
             OutOfBoundaries(Gridlayer, temp_layer);
+            
         }
     }
     // Move right
@@ -308,6 +298,7 @@ void movement(string user_input, int Gridlayer[12][12],
         for (auto& off_set : temp_layer) {
             off_set.second += 1; 
             OutOfBoundaries(Gridlayer, temp_layer);
+            offset_back(temp_layer,Gridlayer);
         }
     }
     // Move left
@@ -315,12 +306,14 @@ void movement(string user_input, int Gridlayer[12][12],
         for (auto& off_set : temp_layer) {
             off_set.second -= 1; 
             OutOfBoundaries(Gridlayer, temp_layer);
+            offset_back(temp_layer,Gridlayer);
         }
     }
     // Rotation
     else if (user_input == "r") {
         rotation(Gridlayer, temp_layer); 
         OutOfBoundaries(Gridlayer, temp_layer);
+        offset_back(temp_layer,Gridlayer);
     }
 
     // Check for collisions with the updated positions in temp_layer
@@ -332,6 +325,13 @@ void movement(string user_input, int Gridlayer[12][12],
             }
         }
     } else {
+
+        for (auto& pos : temp_layer) {
+            if (pos.first <= 2) { // Check if any part of the block is at the top row
+               gameover(); 
+               return;
+            }
+        }
         // Collision detected
         for (const auto& pos : temp_layer) {
             Gridlayer[pos.first][pos.second] = 1; // Keep current block in the grid
@@ -340,10 +340,6 @@ void movement(string user_input, int Gridlayer[12][12],
         make_block_appear(Gridlayer, I_block, O_block, S_block, Z_block, L_block, J_block, T_block, temp_layer);
     }
 }
-
-
-
-
 
 
 bool isBlockOnGround(vector<pair<int, int>>& temp_layer, int Gridlayer[12][12]) {
@@ -359,18 +355,74 @@ bool isBlockOnGround(vector<pair<int, int>>& temp_layer, int Gridlayer[12][12]) 
     }
     return false; 
 }
-void displayScore() {
-   
-    if (score < 100) {
-        cout << "LEVEL 1" << "\n";   
-        
-    }
-    else if (score>=100 && score<=500 ) {
-        cout << "LEVEL 2" << "\n";  
 
-    }
-    cout << "Your current score is: " << score << "\n";
 
+void show_preview(int block_preview[4][4],string& temp_rand,vector<pair<int, int>>& temp_layer, int Gridlayer[12][12]) {
+    clearConsole();
+    vector<string> random_block_generator = {"I", "S", "Z", "T", "O", "L", "J"};
+    srand(static_cast<unsigned int>(time(0)));
+    if (!temp_rand.empty()) {
+        temp_rand = random_block_generator[rand() % 7];
+    }
+    // Clear the preview array
+    for (int row = 0; row < 4; row++) {
+        for (int column = 0; column < 4; column++) {
+            block_preview[row][column] = 0; 
+        }
+    }
+
+
+    if (temp_rand == "I") {
+        block_preview[1][0] = 1;
+        block_preview[1][1] = 1;
+        block_preview[1][2] = 1;
+        block_preview[1][3] = 1; 
+    }
+    else if (temp_rand == "O") {
+        block_preview[1][1] = 1;
+        block_preview[1][2] = 1;
+        block_preview[2][1] = 1;
+        block_preview[2][2] = 1; 
+    }
+    else if (temp_rand == "L") {
+        block_preview[1][1] = 1;
+        block_preview[2][1] = 1;
+        block_preview[3][1] = 1;
+        block_preview[3][2] = 1; 
+    }
+    else if (temp_rand == "J") {
+        block_preview[1][2] = 1;
+        block_preview[2][2] = 1;
+        block_preview[3][2] = 1;
+        block_preview[3][1] = 1;
+    }
+    else if (temp_rand == "S") {
+        block_preview[1][1] = 1;
+        block_preview[1][2] = 1;
+        block_preview[2][2] = 1;
+        block_preview[2][3] = 1; 
+    }
+    else if (temp_rand == "Z") {
+        block_preview[1][1] = 1;
+        block_preview[1][2] = 1;
+        block_preview[2][0] = 1;
+        block_preview[2][1] = 1; 
+    }
+    else if (temp_rand == "T") {
+        block_preview[1][1] = 1;
+        block_preview[1][2] = 1;
+        block_preview[2][1] = 1;
+        block_preview[2][0] = 1;
+    }
+    // Display the block preview
+    cout << "Next Block Preview:\n";
+    for (int row = 0; row < 4; row++) {
+        for (int column = 0; column < 4; column++) {
+            cout << (block_preview[row][column] ? "O " : ". ");
+        }
+        cout << '\n';
+    }
+    temp_rand.clear();
 }
 
 bool is_row_full(int Gridlayer[12][12], int& full_row) {
@@ -439,37 +491,37 @@ int main() {
     int full_row;
     vector<pair<int, int>> temp_layer;
     make_block_appear(Gridlayer, I_block, O_block, S_block, Z_block, L_block, J_block, T_block, temp_layer);
-      while (true) {
-        
-        show_preview(block_preview,I_block, O_block, S_block, Z_block, L_block, J_block, T_block);
-        show_map(Gridlayer);
-        
+while (true) {
+    cout << "wanna play tetris? [y/n]" << "\n";
+    string condition;
+    cin >> condition;
+
+    if (condition == "n") {
+        return 1;
+    } else if (condition == "y") {
         while (true) {
-           
-            if (temp_layer.empty() || !isBlockOnGround(temp_layer,Gridlayer)) {
+            show_preview(block_preview, temp_rand, temp_layer, Gridlayer);
+            show_map(Gridlayer);
+            cout << "CONTROLS: s = down, q = left, d = right, r to rotate!" << "\n";
+
+            if (temp_layer.empty() || !isBlockOnGround(temp_layer, Gridlayer)) {
                 custom_print("where do you want to move");
                 string user_input;
                 cin >> user_input;
 
-                movement(user_input,Gridlayer,I_block, O_block, S_block, Z_block, L_block, J_block, T_block,temp_layer);
-                destroy_row(Gridlayer,temp_layer);
-                show_preview(block_preview,I_block, O_block, S_block, Z_block, L_block, J_block, T_block);
+                movement(user_input, Gridlayer, I_block, O_block, S_block, Z_block, L_block, J_block, T_block, temp_layer);
+                destroy_row(Gridlayer, temp_layer);
+                show_preview(block_preview, temp_rand, temp_layer, Gridlayer);
                 show_map(Gridlayer);
                 displayScore();
-                if ((user_input != "ù") && !collision(Gridlayer,temp_layer)) {
-                    cout << "Game over";
-                    displayScore();
-                    return 1;
-                }
-                 
-            }  
-            else {
+
+            } else {
                 make_block_appear(Gridlayer, I_block, O_block, S_block, Z_block, L_block, J_block, T_block, temp_layer);
             }
-          
         }
-    
     }
+}
+
 
    
 
