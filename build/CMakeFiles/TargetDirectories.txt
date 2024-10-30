@@ -1,5 +1,3 @@
 C:/Users/btats the kid/Desktop/code/cmake-sfml-project-master/build/CMakeFiles/main.dir
-C:/Users/btats the kid/Desktop/code/cmake-sfml-project-master/build/CMakeFiles/package.dir
-C:/Users/btats the kid/Desktop/code/cmake-sfml-project-master/build/CMakeFiles/package_source.dir
 C:/Users/btats the kid/Desktop/code/cmake-sfml-project-master/build/CMakeFiles/edit_cache.dir
 C:/Users/btats the kid/Desktop/code/cmake-sfml-project-master/build/CMakeFiles/rebuild_cache.dir

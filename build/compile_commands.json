@@ -1,8 +1,0 @@
-[
-{
-  "directory": "C:/Users/btats the kid/Desktop/code/cmake-sfml-project-master/build",
-  "command": "C:\\msys64\\ucrt64\\bin\\g++.exe   -g -o CMakeFiles\\main.dir\\src\\main.cpp.obj -c \"C:\\Users\\btats the kid\\Desktop\\code\\cmake-sfml-project-master\\src\\main.cpp\"",
-  "file": "C:/Users/btats the kid/Desktop/code/cmake-sfml-project-master/src/main.cpp",
-  "output": "CMakeFiles/main.dir/src/main.cpp.obj"
-}
-]
